@@ -11,15 +11,20 @@ const webPort = "80"
 type Config struct {
 }
 
+func NewConfig() *Config {
+	return &Config{}
+}
+
 func main() {
 	app := Config{}
+	routes := app.routes1()
 
 	log.Printf("Starting broker service on port %s\n", webPort)
 
 	//define https server
 	srv := http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
-		Handler: app.routes(),
+		Handler: routes,
 	}
 
 	//start the server

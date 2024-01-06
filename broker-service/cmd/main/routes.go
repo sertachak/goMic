@@ -1,15 +1,13 @@
 package main
 
 import (
+	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"net/http"
 )
-import (
-	"github.com/go-chi/chi"
-)
 
-func (app *Config) routes() http.Handler {
+func (app *Config) routes1() http.Handler {
 	mux := chi.NewRouter()
 
 	mux.Use(cors.Handler(cors.Options{
@@ -22,6 +20,20 @@ func (app *Config) routes() http.Handler {
 	}))
 
 	mux.Use(middleware.Heartbeat("/ping"))
+	mux.Use(middleware.RequestID)
+	mux.Use(middleware.RealIP)
+	mux.Use(middleware.Logger)
+	mux.Use(middleware.Recoverer)
+
+	mux.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("hi"))
+	})
+
+	mux.Route("/routed", func(mux chi.Router) {
+		mux.Get("/example", func(writer http.ResponseWriter, request *http.Request) {
+			writer.Write([]byte("aby"))
+		})
+	})
 
 	mux.Post("/", app.Broker)
 
