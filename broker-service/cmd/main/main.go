@@ -11,12 +11,18 @@ const webPort = "80"
 type Config struct {
 }
 
+type Route struct {
+	Config
+	routeName string
+}
+
 func NewConfig() *Config {
 	return &Config{}
 }
 
 func main() {
-	app := Config{}
+	app := Route{}
+	log.Printf("/T", app)
 	routes := app.routes1()
 
 	log.Printf("Starting broker service on port %s\n", webPort)
