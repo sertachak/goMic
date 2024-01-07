@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
+	"sync"
 )
 
 const webPort = "80"
+
+var wg sync.WaitGroup
 
 type Config struct {
 }
@@ -20,10 +24,40 @@ func NewConfig() *Config {
 	return &Config{}
 }
 
+type doc interface {
+	printDoc() string
+}
+
+type goDoc struct {
+	name string
+}
+
+func (docgo *goDoc) printDoc() string {
+	return "Printdoc for go;"
+}
+
+func printDocRegular(doc doc) {
+	println("PrintDoc for doc %s", doc.printDoc())
+}
+
 func main() {
+	documented := goDoc{
+		name: "Go",
+	}
+
+	documented.printDoc()
+	printDocRegular(&documented)
+
+	log.Printf("Go os:%s \t", runtime.GOOS)
+	log.Printf("Go :%s \t", runtime.GOARCH)
+	log.Printf("Go :%d \t", runtime.NumCPU())
+	log.Printf("Go :%d \t", runtime.NumGoroutine())
+
 	app := Route{}
 	log.Printf("/T", app)
 	routes := app.routes1()
+
+	wgTest()
 
 	log.Printf("Starting broker service on port %s\n", webPort)
 
@@ -38,4 +72,23 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+}
+
+func wgTest() {
+	wg.Add(1)
+
+	sliceA := []int{1, 2, 3, 4}
+
+	go sliceTraverse(sliceA)
+
+	log.Println("Before wait")
+
+	wg.Wait()
+}
+
+func sliceTraverse(sliceA []int) {
+	for index, value := range sliceA {
+		log.Printf("index : %d value: %d", index, value)
+	}
+	wg.Done()
 }
