@@ -75,20 +75,47 @@ func main() {
 }
 
 func wgTest() {
-	wg.Add(1)
+	wg.Add(102)
+
+	var mx sync.Mutex
 
 	sliceA := []int{1, 2, 3, 4}
+	sliceB := []int{1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4}
 
-	go sliceTraverse(sliceA)
+	count := 0
+
+	go sliceTraverse(sliceA, mx, count)
+	go sliceTraverse(sliceB, mx, count)
 
 	log.Println("Before wait")
+	log.Printf("Waiting main thread %d", count)
+
+	sharedCount := 0
+	var sharedMutex sync.Mutex
+
+	for i := 0; i < 100; i++ {
+		go func() {
+			sharedMutex.Lock()
+			v := sharedCount
+			v++
+			sharedCount = v
+			sharedMutex.Unlock()
+			wg.Done()
+		}()
+	}
 
 	wg.Wait()
+	fmt.Println("Shared count", sharedCount)
 }
 
-func sliceTraverse(sliceA []int) {
+func sliceTraverse(sliceA []int, mutex sync.Mutex, count int) {
+	mutex.Lock()
+	defer wg.Done()
 	for index, value := range sliceA {
 		log.Printf("index : %d value: %d", index, value)
+		count++
 	}
-	wg.Done()
+	log.Printf("Innter routines %d", count)
+
+	mutex.Unlock()
 }
