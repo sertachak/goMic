@@ -58,6 +58,7 @@ func main() {
 	routes := app.routes1()
 
 	wgTest()
+	channelTypes()
 
 	log.Printf("Starting broker service on port %s\n", webPort)
 
@@ -124,4 +125,14 @@ func sliceTraverse(sliceA []int, mutex sync.Mutex, count int) {
 	log.Printf("Innter routines %d", count)
 
 	mutex.Unlock()
+}
+
+func channelTypes() {
+	var biDirectionalChan = make(chan int)
+	var receiveChan = make(<-chan int)
+	var sendChan = make(chan<- int)
+
+	fmt.Printf("CH1 : %T, \n", biDirectionalChan)
+	fmt.Printf("CH2 : %T, \n", receiveChan)
+	fmt.Printf("CH3 : %T, \n", sendChan)
 }
