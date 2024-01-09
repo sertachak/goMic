@@ -76,6 +76,7 @@ func main() {
 
 func wgTest() {
 	wg.Add(102)
+	var c = make(chan int)
 
 	var mx sync.Mutex
 
@@ -98,9 +99,14 @@ func wgTest() {
 			sharedMutex.Lock()
 			v := sharedCount
 			v++
+			c <- v
 			sharedCount = v
 			sharedMutex.Unlock()
 			wg.Done()
+		}()
+
+		go func() {
+			fmt.Println(<-c)
 		}()
 	}
 
